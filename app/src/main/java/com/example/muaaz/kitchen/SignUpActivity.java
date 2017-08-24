@@ -27,7 +27,7 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
 
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference myRef = database.getReference("Users");
+        final DatabaseReference ref = database.getReference("Users");
 
 
         mEmailEditText = (EditText) findViewById(R.id.signup_email_et);
@@ -78,20 +78,20 @@ public class SignUpActivity extends AppCompatActivity {
                 }else {
                     allchecked = false;
                 }
-//mk
                 if(allchecked){
 
-                    DatabaseReference ref = database.getReference("Users").child(email);
+                    ref.child(email);
 
+                    ref.child(email);
                     User user = new User(email, name, surname, phoneNo, password);
                     ref.setValue(user);
+                    //TODO add user if email not already exists
 
                 }else{
-                    //mkmk m
                     AlertDialog alertDialog = new AlertDialog.Builder(SignUpActivity.this).create();
                     alertDialog.setTitle("Error");
                     alertDialog.setMessage("One or more fields are empty or have incorrect inputs");
-                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "ODismiss",
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Dismiss",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
