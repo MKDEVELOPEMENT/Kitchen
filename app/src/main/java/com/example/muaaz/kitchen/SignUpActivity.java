@@ -9,8 +9,12 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.muaaz.kitchen.classes.User;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -42,50 +46,68 @@ public class SignUpActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Boolean allchecked = true;
 
-                String email = null;
-                String name = null;
-                String surname = null;
-                String phoneNo = null;
-                String password = null;
+                final String email;
+                final String name;
+                final String surname;
+                final String phoneNo;
+                final String password;
 
 
                 if(mEmailEditText.getText().toString().trim().length() > 0 ){
                     email = mEmailEditText.getText().toString();
                 }else {
+                    email = null;
                     allchecked = false;
                 }
 
                 if(mNameEditText.getText().toString().trim().length() > 0 ){
                     name = mNameEditText.getText().toString();
                 }else {
+                    name = null;
                     allchecked = false;
                 }
 
                 if(mSurnameEditText.getText().toString().trim().length() > 0 ){
                     surname = mSurnameEditText.getText().toString();
                 }else {
+                    surname = null;
                     allchecked = false;
                 }
 
                 if(mPhoneNoEditText.getText().toString().trim().length() == 10){
                     phoneNo = mPhoneNoEditText.getText().toString();
                 }else {
+                    phoneNo = null;
                     allchecked = false;
                 }
 
                 if(mPasswordEditText.getText().toString().trim().length() > 0 ){
                     password = mPasswordEditText.getText().toString();
                 }else {
+                    password = null;
                     allchecked = false;
                 }
                 if(allchecked){
-
-                    ref.child(email);
-
-                    ref.child(email);
-                    User user = new User(email, name, surname, phoneNo, password);
-                    ref.setValue(user);
                     //TODO add user if email not already exists
+                    ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for(DataSnapshot data: dataSnapshot.getChildren()){
+                                if (data.child(email).exists()) {
+                                    ref.child(email);
+                                    User user = new User(email, name, surname, phoneNo, password);
+                                    ref.setValue(user);
+                                } else {
+
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError firebaseError) {
+
+                        }
+                    });
 
                 }else{
                     AlertDialog alertDialog = new AlertDialog.Builder(SignUpActivity.this).create();
