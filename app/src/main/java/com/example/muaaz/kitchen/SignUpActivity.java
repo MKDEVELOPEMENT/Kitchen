@@ -98,7 +98,16 @@ public class SignUpActivity extends AppCompatActivity {
                                     User user = new User(email, name, surname, phoneNo, password);
                                     ref.setValue(user);
                                 } else {
-
+                                    AlertDialog alertDialog = new AlertDialog.Builder(SignUpActivity.this).create();
+                                    alertDialog.setTitle("Error");
+                                    alertDialog.setMessage("That email is already associated with another account");
+                                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Dismiss",
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    dialog.dismiss();
+                                                }
+                                            });
+                                    alertDialog.show();
                                 }
                             }
                         }
@@ -125,5 +134,3 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 }
-
-
