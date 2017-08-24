@@ -87,7 +87,7 @@ public class SignUpActivity extends AppCompatActivity {
                     ref.setValue(user);
 
                 }else{
-                    //mkmk
+                    //mkmk m
                     AlertDialog alertDialog = new AlertDialog.Builder(SignUpActivity.this).create();
                     alertDialog.setTitle("Error");
                     alertDialog.setMessage("One or more fields are empty or have incorrect inputs");
