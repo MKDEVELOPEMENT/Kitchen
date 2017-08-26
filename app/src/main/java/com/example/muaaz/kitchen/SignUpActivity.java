@@ -1,9 +1,11 @@
 package com.example.muaaz.kitchen;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -31,8 +33,6 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
 
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference ref = database.getReference("Users");
-
 
         mEmailEditText = (EditText) findViewById(R.id.signup_email_et);
         mNameEditText = (EditText) findViewById(R.id.signup_name_et);
@@ -56,7 +56,7 @@ public class SignUpActivity extends AppCompatActivity {
                 if(mEmailEditText.getText().toString().trim().length() > 0 ){
                     email = mEmailEditText.getText().toString();
                 }else {
-                    email = null;
+                    email = "";
                     allchecked = false;
                 }
 
@@ -87,36 +87,72 @@ public class SignUpActivity extends AppCompatActivity {
                     password = null;
                     allchecked = false;
                 }
+                final String newmail = email.replaceAll("[.]", "%");
                 if(allchecked){
-                    //TODO add user if email not already exists
+                    final DatabaseReference ref = database.getReference("Users");
                     ref.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            for(DataSnapshot data: dataSnapshot.getChildren()){
-                                if (data.child(email).exists()) {
-                                    ref.child(email);
-                                    User user = new User(email, name, surname, phoneNo, password);
-                                    ref.setValue(user);
-                                } else {
-                                    AlertDialog alertDialog = new AlertDialog.Builder(SignUpActivity.this).create();
-                                    alertDialog.setTitle("Error");
-                                    alertDialog.setMessage("That email is already associated with another account");
-                                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Dismiss",
-                                            new DialogInterface.OnClickListener() {
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    dialog.dismiss();
-                                                }
-                                            });
-                                    alertDialog.show();
-                                }
+                        public void onDataChange(DataSnapshot snapshot) {
+                            if (snapshot.hasChild(newmail)) {
+                                Log.i("child", "has child");
+                                AlertDialog alertDialog = new AlertDialog.Builder(SignUpActivity.this).create();
+                                alertDialog.setTitle("Error");
+                                alertDialog.setMessage("this email is already associated with another account");
+                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Dismiss",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                alertDialog.show();
+                            }else{
+                                Log.i("child", "new child successfully added");
+                                DatabaseReference newUser = database.getReference("Users").child(newmail);
+                                User user = new User(newmail, name, surname, phoneNo, password);
+                                newUser.setValue(user);
+
+                                Intent intent  = new Intent(SignUpActivity.this, LoginActivity.class);
+                                intent.putExtra("userEmail", email);
+                                startActivity(intent);
                             }
                         }
 
                         @Override
-                        public void onCancelled(DatabaseError firebaseError) {
+                        public void onCancelled(DatabaseError databaseError) {
 
                         }
                     });
+                    //old code, kept in case for no real reason
+                    /*ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.child(newmail).exists()){
+                                Log.i("child", "has child");
+                                AlertDialog alertDialog = new AlertDialog.Builder(SignUpActivity.this).create();
+                                alertDialog.setTitle("Error");
+                                alertDialog.setMessage("One or more fields are empty or have incorrect inputs");
+                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Dismiss",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                alertDialog.show();
+                            }else{
+                                Log.i("nochild", "onDataChange: no child");
+                                User user = new User(newmail, name, surname, phoneNo, password);
+                                ref.setValue(user);
+
+                                Intent intent  = new Intent(SignUpActivity.this, LoginActivity.class);
+                                intent.putExtra("userEmail", email);
+                                startActivity(intent);
+                            }
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError firebaseError) {
+
+                        }
+                    });*/
 
                 }else{
                     AlertDialog alertDialog = new AlertDialog.Builder(SignUpActivity.this).create();
@@ -132,5 +168,10 @@ public class SignUpActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
     }
 }
