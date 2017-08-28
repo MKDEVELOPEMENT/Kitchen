@@ -25,6 +25,7 @@ public class SignUpActivity extends AppCompatActivity {
     EditText mSurnameEditText;
     EditText mPhoneNoEditText;
     EditText mPasswordEditText;
+    EditText mConfirmPasswordEditText;
     Button mSignUpButton;
 
     @Override
@@ -39,6 +40,7 @@ public class SignUpActivity extends AppCompatActivity {
         mSurnameEditText = (EditText) findViewById(R.id.signup_surname_et);
         mPhoneNoEditText = (EditText) findViewById(R.id.signup_phone_et);
         mPasswordEditText = (EditText) findViewById(R.id.signup_password_et);
+        mConfirmPasswordEditText = (EditText) findViewById(R.id.signup_password_confirm_et);
         mSignUpButton = (Button) findViewById(R.id.signup_signup_button);
 
         mSignUpButton.setOnClickListener(new View.OnClickListener() {
@@ -88,7 +90,9 @@ public class SignUpActivity extends AppCompatActivity {
                     allchecked = false;
                 }
                 final String newmail = email.replaceAll("[.]", "%");
-                if(allchecked){
+                String pass = mPasswordEditText.getText().toString();
+                String confpass = mConfirmPasswordEditText.getText().toString();
+                if(allchecked && pass.equals(confpass)){
                     final DatabaseReference ref = database.getReference("Users");
                     ref.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
